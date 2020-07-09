@@ -5,7 +5,7 @@ from pprint import pprint
 
 # функция, вызываемая снаружи
 def main(filename):
-    return parse_stp(open_file(filename))
+    return string_replacer(parse_stp(open_file(filename)))
 
 # построчно выдаёт содержимое файла
 def open_file(filename):
@@ -145,6 +145,7 @@ def list_reference_replacer(lst, dct):
         else:
             res.append(element)
     return res
+
 
 
 #res = main("test.stp")
