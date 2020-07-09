@@ -10,10 +10,8 @@ def main(filename):
 # построчно выдаёт содержимое файла
 def open_file(filename):
     with open(filename, "r") as f:
-        t = f.readline()
-        while t != '':
-            yield t
-            t = f.readline()
+        for line in f:
+            yield line
 
 # разбирает переданное ему содержимое файла формата step
 def parse_stp(data):
