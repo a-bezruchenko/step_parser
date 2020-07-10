@@ -5,10 +5,10 @@ from pprint import pprint
 
 # функция, вызываемая снаружи
 def main(filename):
-    return string_replacer(parse_stp(open_file(filename)))
+    return string_replacer(parse_stp(_open_file(filename)))
 
 # построчно выдаёт содержимое файла
-def open_file(filename):
+def _open_file(filename):
     with open(filename, "r") as f:
         for line in f:
             yield line
@@ -43,14 +43,14 @@ def parse_stp(data):
             b = temp_line.find('(')
             e = temp_line.find('=')
             if not no_op_element:
-                res[current_el] = [temp_line[e+1:b], parse(temp_line[b+1:-2])]
+                res[current_el] = [temp_line[e+1:b], _parse(temp_line[b+1:-2])]
             else:
-                res[current_el] = [temp_line[e+1:b], parse_multiline_element(temp_line[b+1:-3])]
+                res[current_el] = [temp_line[e+1:b], _parse_multiline_element(temp_line[b+1:-3])]
             current_el = -1
 
 # разбирает аргументы команды
 # принимает аргументы без скобок
-def parse(line):
+def _parse(line):
     res = []
     start = 0
     b_count = 0
@@ -65,7 +65,7 @@ def parse(line):
             b_count -= 1
             if b_count == 0:
                 try:
-                    res.append(parse(line[start+1:i]))
+                    res.append(_parse(line[start+1:i]))
                     start = i+2
                 except Exception:
                     print(line)
@@ -81,22 +81,22 @@ def parse(line):
         res.append(left_chars)
     return res
 
-def parse_multiline_element(element):
+def _parse_multiline_element(element):
     lines = element.split('\n')[:-1]
     res = []
     for line in lines:
         b = line.find('(')
-        res.append([line[:b], parse(line[b+1:-1])])
+        res.append([line[:b], _parse(line[b+1:-1])])
     return res
 
 # приводит строки в utf-8
 def string_replacer(parsed_data):
     res = {x:[] for x in parsed_data}
     for key in parsed_data:
-        res[key] = recursive_string_replacer(parsed_data[key])
+        res[key] = _recursive_string_replacer(parsed_data[key])
     return res
 
-def recursive_string_replacer(lst):
+def _recursive_string_replacer(lst):
     res = []
     for element in lst:
         if type(element) == str:
@@ -105,14 +105,14 @@ def recursive_string_replacer(lst):
                 element = splitted[0]
                 for substr in splitted[1:]:
                     x0 = substr.find("\\X0\\")
-                    element += convert_string(substr[:x0]) + substr[x0+len("\\X0\\"):]
+                    element += _convert_string(substr[:x0]) + substr[x0+len("\\X0\\"):]
             res.append(element)
         elif type(element) == list:
-            res.append(recursive_string_replacer(element))
+            res.append(_recursive_string_replacer(element))
     return res
 
 
-def convert_string(string):
+def _convert_string(string):
     output = ""
     i = 0
     while i < len(string):
@@ -125,7 +125,7 @@ def reference_replacer(parsed_data):
     res = {x:[parsed_data[x][0], []] for x in parsed_data}
     for key in parsed_data:
         try:
-            res[key][1] += list_reference_replacer(parsed_data[key][1], res)
+            res[key][1] += _list_reference_replacer(parsed_data[key][1], res)
         except Exception:
             print(key)
             print(parsed_data[key])
@@ -134,14 +134,14 @@ def reference_replacer(parsed_data):
 # рекурсивно заменяет упоминания элементов в данном списке на ссылки
 # lst — список, в котором заменять
 # dct — словарь, на который надо ссылаться
-def list_reference_replacer(lst, dct):
+def _list_reference_replacer(lst, dct):
     res = []
     for element in lst:
         if type(element) == str and element != '' and element[0] == '#':
             ref_num = int(element[1:])
             res.append(dct[ref_num])
         elif type(element) == list:
-            res.append(list_reference_replacer(element, dct))
+            res.append(_list_reference_replacer(element, dct))
         else:
             res.append(element)
     return res

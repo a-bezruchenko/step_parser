@@ -6,7 +6,7 @@ import sys
 
 def main(filename):
     parsed = parse_step(filename)
-    pprint(build_tree(parsed))
+    return build_tree(parsed)
 
 # возвращаемый формат:
 # (assembly_relationships, names), где
@@ -30,7 +30,7 @@ def build_tree(parsed_data):
 
     # вид assembly_relationships: [25,26,27]
     # заменяем каждый элемент assembly_relationships на связываемые элементом тела
-    def replace_with_related(key):
+    def _replace_with_related(key):
         j = 0
         while parsed_data[key][1][j][0] != '#':
             j += 1
@@ -39,7 +39,7 @@ def build_tree(parsed_data):
             res[i] = int(res[i][1:])
         return res
 
-    assembly_relationships = list(map(replace_with_related, assembly_relationships))
+    assembly_relationships = list(map(_replace_with_related, assembly_relationships))
 
     # вид assembly_relationships: [[1768, 1769], [1768, 1770], [1768, 1770]]
     # выделим в отдельный список имена элементов
