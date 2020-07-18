@@ -27,8 +27,9 @@ def parse_ipt(path):
     invApp = win32com.client.Dispatch("Inventor.Application")
     invApp.Visible = False
     doc = invApp.Documents.Open(path, False)
+    name = "test"
     res = []
     comp = doc.ComponentDefinition
     for feature in comp.Features:
-        res.append(feature)
-    return res
+        res.append({feature.Name: feature})
+    return {name: res}
