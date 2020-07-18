@@ -8,9 +8,19 @@ def parse_iam(path):
     invApp = win32com.client.Dispatch("Inventor.Application")
     invApp.Visible = False
     doc = invApp.Documents.Open(path, False)
+    main_name = "test"
+    res = {main_name: _rec_parse_subassembly(doc.ComponentDefinition.Occurrences)}
+    return res
+
+def _rec_parse_subassembly(subassembly):
+    ASSEMBLY_TYPE = 12291
+    COMPONENT_TYPE = 12290
     res = []
-    for comp in doc.ComponentDefinition.Occurrences:
-        res.append(comp.Name)
+    for el in subassembly:
+        if el.DefinitionDocumentType == COMPONENT_TYPE:
+            res.append({el.Name: [{f.Name: f} for f in el.Definition.Features]})
+        else:
+            res.append({el.Name: _rec_parse_subassembly(el.SubOccurrences)})
     return res
 
 def parse_ipt(path):
