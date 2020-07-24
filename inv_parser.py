@@ -4,9 +4,10 @@ from pprint import pprint
 import sys
 import os.path
 
-def parse_iam(path):
-    invApp = win32com.client.Dispatch("Inventor.Application")
-    invApp.Visible = False
+def parse_iam(path, invApp = None):
+    if not invApp:
+        invApp = win32com.client.Dispatch("Inventor.Application")
+        invApp.Visible = False
     doc = invApp.Documents.Open(path, False)
     main_name = doc.PropertySets['Design Tracking Properties']['Part Number'].value
     res = {
@@ -41,9 +42,10 @@ def _get_surface(features):
         "content": [f.SurfaceType for f in b.Faces]}
         for b in features[0].SurfaceBodies]
 
-def parse_ipt(path):
-    invApp = win32com.client.Dispatch("Inventor.Application")
-    invApp.Visible = False
+def parse_ipt(path, invApp = None):
+    if not invApp:
+        invApp = win32com.client.Dispatch("Inventor.Application")
+        invApp.Visible = False
     doc = invApp.Documents.Open(path, False)
     main_name = doc.PropertySets['Design Tracking Properties']['Part Number'].value
     res = _get_surface(doc.ComponentDefinition.Features)
